@@ -28,6 +28,8 @@ class CLI():
             self.judge()
         elif self.args.vtel_sub == 'iscsi':
             self.iscsi_judge()
+        else:
+            self.vtel.print_help()
 
     def parser_vtel(self):
         self.vtel = argparse.ArgumentParser(prog='vtel')
@@ -126,7 +128,7 @@ class CLI():
 
         ###stor resource delete
         self.resource_delete.add_argument('resource',metavar='RESOURCE',action='store', help='Name of the resource to delete')
-        self.resource_delete.add_argument('-n', dest='node', action='store', help='Name of the node')
+        self.resource_delete.add_argument('-n', dest='node', action='store', help='The name of the node. In this way, the cluster retains the attribute of the resource, including its name and size.')
         self.resource_delete.add_argument('-y', dest='yes', action='store_true',help='Skip to confirm selection', default=False)
         self.resource_delete.add_argument('-gui', dest='gui', action='store_true', help=argparse.SUPPRESS, default=False)
 
@@ -703,81 +705,79 @@ class CLI():
         else:
             self.vtel.print_help()
 
-
-
     """
     ------iscsi-------
     """
+
     # 命令判断
-	def iscsi_judge(self):
-		js = JSON_OPERATION()
-		args = self.args
-		# print(args)
-		if args.iscsi in ['host', 'h']:
-			if args.host in ['create', 'c']:
-				if args.gui == 'gui':
-					handle = SocketSend()
-					handle.send_result(self.judge_hc,args,js)
-				else:
-					self.judge_hc(args, js)
-			elif args.host in ['show', 's']:
-				self.judge_hs(args, js)
-			elif args.host in ['delete', 'd']:
-				self.judge_hd(args, js)
-			else:
-				print("iscsi host ? (choose from 'create', 'show', 'delete')")
-		elif args.iscsi in ['disk','d']:
-			if args.disk in ['show','s']:
-				self.judge_ds(args, js)
-			else:
-				print("iscsi disk ? (choose from 'show')")
-		elif args.iscsi in ['hostgroup','hg']:
-			if args.hostgroup in ['create', 'c']:
-				if args.gui == 'gui':
-					handle = SocketSend()
-					handle.send_result(self.judge_hgc,args,js)
-				else:
-					self.judge_hgc(args, js)
-			elif args.hostgroup in ['show', 's']:
-				self.judge_hgs(args, js)
-			elif args.hostgroup in ['delete', 'd']:
-				self.judge_hgd(args, js)
-			else:
-				print("iscsi hostgroup ? (choose from 'create', 'show', 'delete')")
-		elif args.iscsi in ['diskgroup','dg']:
-			if args.diskgroup in ['create', 'c']:
-				if args.gui == 'gui':
-					handle = SocketSend()
-					handle.send_result(self.judge_dgc,args,js)
-				else:
-					self.judge_dgc(args, js)
-			elif args.diskgroup in ['show', 's']:
-				self.judge_dgs(args, js)
-			elif args.diskgroup in ['delete', 'd']:
-				self.judge_dgd(args, js)
-			else:
-				print("iscsi diskgroup ? (choose from 'create', 'show', 'delete')")
-		elif args.iscsi in ['map','m']:
-			if args.map in ['create', 'c']:
-				if args.gui == 'gui':
-					handle = SocketSend()
-					handle.send_result(self.judge_mc,args,js)
-				else:
-					self.judge_mc(args, js)
-			elif args.map in ['show', 's']:
-				self.judge_ms(args, js)
-			elif args.map in ['delete', 'd']:
-				self.judge_md(args, js)
-			else:
-				print("iscsi map ? (choose from 'create', 'show', 'delete')")
-		elif args.iscsi == 'show':
-			print(js.read_data_json())
-			handle = SocketSend()
-			handle.send_result(self.judge_s,js)
-		else:
-			print("iscsi ？ (choose from 'host', 'disk', 'hg', 'dg', 'map')")
-    
-    
+    def iscsi_judge(self):
+        js = JSON_OPERATION()
+        args = self.args
+        # print(args)
+        if args.iscsi in ['host', 'h']:
+            if args.host in ['create', 'c']:
+                if args.gui == 'gui':
+                    handle = SocketSend()
+                    handle.send_result(self.judge_hc, args, js)
+                else:
+                    self.judge_hc(args, js)
+            elif args.host in ['show', 's']:
+                self.judge_hs(args, js)
+            elif args.host in ['delete', 'd']:
+                self.judge_hd(args, js)
+            else:
+                print("iscsi host ? (choose from 'create', 'show', 'delete')")
+        elif args.iscsi in ['disk', 'd']:
+            if args.disk in ['show', 's']:
+                self.judge_ds(args, js)
+            else:
+                print("iscsi disk ? (choose from 'show')")
+        elif args.iscsi in ['hostgroup', 'hg']:
+            if args.hostgroup in ['create', 'c']:
+                if args.gui == 'gui':
+                    handle = SocketSend()
+                    handle.send_result(self.judge_hgc, args, js)
+                else:
+                    self.judge_hgc(args, js)
+            elif args.hostgroup in ['show', 's']:
+                self.judge_hgs(args, js)
+            elif args.hostgroup in ['delete', 'd']:
+                self.judge_hgd(args, js)
+            else:
+                print("iscsi hostgroup ? (choose from 'create', 'show', 'delete')")
+        elif args.iscsi in ['diskgroup', 'dg']:
+            if args.diskgroup in ['create', 'c']:
+                if args.gui == 'gui':
+                    handle = SocketSend()
+                    handle.send_result(self.judge_dgc, args, js)
+                else:
+                    self.judge_dgc(args, js)
+            elif args.diskgroup in ['show', 's']:
+                self.judge_dgs(args, js)
+            elif args.diskgroup in ['delete', 'd']:
+                self.judge_dgd(args, js)
+            else:
+                print("iscsi diskgroup ? (choose from 'create', 'show', 'delete')")
+        elif args.iscsi in ['map', 'm']:
+            if args.map in ['create', 'c']:
+                if args.gui == 'gui':
+                    handle = SocketSend()
+                    handle.send_result(self.judge_mc, args, js)
+                else:
+                    self.judge_mc(args, js)
+            elif args.map in ['show', 's']:
+                self.judge_ms(args, js)
+            elif args.map in ['delete', 'd']:
+                self.judge_md(args, js)
+            else:
+                print("iscsi map ? (choose from 'create', 'show', 'delete')")
+        elif args.iscsi == 'show':
+            print(js.read_data_json())
+            handle = SocketSend()
+            handle.send_result(self.judge_s, js)
+        else:
+            print("iscsi ？ (choose from 'host', 'disk', 'hg', 'dg', 'map')")
+
     # host创建
     def judge_hc(self, args, js):
         print("hostname:", args.iqnname)
@@ -1091,6 +1091,7 @@ class CLI():
                 else:
                     return False
             return True
+
 
 if __name__ == '__main__':
     CLI()
