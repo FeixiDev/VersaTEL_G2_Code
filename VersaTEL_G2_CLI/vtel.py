@@ -12,9 +12,13 @@ from crm_resouce import crm
 from getlinstor import GetLinstor
 from iscsi_json import JSON_OPERATION
 from cli_socketclient import SocketSend
+import regex
 
 #多节点创建resource时，storapoo多于node的异常类
 class NodeLessThanSPError(Exception):
+    pass
+
+class InvalidSize(Exception):
     pass
 
 
@@ -25,7 +29,7 @@ class CLI():
         self.parser_iscsi()
         self.args = self.vtel.parse_args()
         if self.args.vtel_sub == 'stor':
-            self.judge()
+            self.stor_judge()
         elif self.args.vtel_sub == 'iscsi':
             self.iscsi_judge()
         else:
@@ -99,7 +103,7 @@ class CLI():
 
         self.resource_create.add_argument('resource', metavar='RESOURCE',action='store',help='Name of the resource')
         self.resource_create.add_argument('-s', dest='size', action='store',help=' Size of the resource.In addition to creating diskless resource, you must enter SIZE.'
-                                                                                 'Valid units: B, K, kB, KiB, M, MB,MiB, G, GB, GiB, T, TB, TiB, P, PB, PiB.')
+                                                                                 'Valid units: B, K, kB, KiB, M, MB,MiB, G, GB, GiB, T, TB, TiB, P, PB, PiB.\nThe default unit is GB.')
         self.resource_create.add_argument('-gui', dest='gui', action='store_true', help=argparse.SUPPRESS, default=False)
 
 
@@ -261,7 +265,7 @@ class CLI():
 
         def node_create():
             if args.gui:
-                handle = SocketSend
+                handle = SocketSend()
                 handle.send_result(stor_action.create_node,args.node, args.ip, args.nodetype)
             elif args.node and args.nodetype and args.ip:
                 stor_action.create_node(args.node, args.ip, args.nodetype)
@@ -332,7 +336,6 @@ class CLI():
             #     if len(args.node) >= len(args.storagepool):
             #         return True
 
-
             """
             以下注释代码为创建resource判断分支的另一种写法
             把创建resource的三种模式：正常创建（包括自动和手动），创建diskless，添加mirror分别封装
@@ -342,6 +345,10 @@ class CLI():
             def is_args_correct():
                 if len(args.node) < len(args.storagepool):
                     raise NodeLessThanSPError('指定的storagepool数量应少于node数量')
+
+            def is_vail_size(size):
+                if not regex.judge_size(size):
+                    raise InvalidSize('Invalid Size')
 
             #特定模式必需的参数
             list_auto_required = [args.auto, args.num]
@@ -356,10 +363,18 @@ class CLI():
                     return
                 if any(list_normal_forbid):
                     return
+                try:
+                    is_vail_size(args.size)
+                except InvalidSize:
+                    print('%s is not a valid size!'%args.size)
+                    sys.exit(0)
+                else:
+                    pass
+
                 if all(list_auto_required) and not any(list_manual_required):
                     #For GUI
                     if args.gui:
-                        handle = SocketSend
+                        handle = SocketSend()
                         handle.send_result(stor_action.create_res_auto,args.resource, args.size, args.num)
                         return True
                     #CLI
@@ -375,7 +390,7 @@ class CLI():
                     else:
                         #For GUI
                         if args.gui:
-                            handle = SocketSend
+                            handle = SocketSend()
                             handle.send_result(stor_action.create_res_manual,args.resource,args.size,args.node,args.storagepool)
                             return True
                         #CLI
@@ -390,7 +405,7 @@ class CLI():
                     return
                 if not any(list_diskless_forbid):
                     if args.gui:
-                        handle = SocketSend
+                        handle = SocketSend()
                         handle.send_result(stor_action.create_res_diskless,args.node, args.resource)
                         return True
                     else:
@@ -408,7 +423,7 @@ class CLI():
                 if all(list_auto_required) and not any(list_manual_required):
                     #For GUI
                     if args.gui:
-                        handle = SocketSend
+                        handle = SocketSend()
                         handle.send_result(stor_action.add_mirror_auto,args.resource,args.num)
                         return True
                     else:
@@ -423,7 +438,7 @@ class CLI():
                     else:
                         #For GUI
                         if args.gui:
-                            handle = SocketSend
+                            handle = SocketSend()
                             handle.send_result(stor_action.add_mirror_manual,args.resource,args.node,args.storagepool)
                             return True
                         else:
@@ -577,13 +592,13 @@ class CLI():
             if args.storagepool and args.node:
                 if args.lvm:
                     if args.gui:
-                        handle = SocketSend
+                        handle = SocketSend()
                         handle.send_result(stor_action.create_storagepool_lvm,args.node, args.storagepool, args.lvm)
                     else:
                         stor_action.create_storagepool_lvm(args.node, args.storagepool, args.lvm)
                 elif args.tlv:
                     if args.gui:
-                        handle = SocketSend
+                        handle = SocketSend()
                         handle.send_result(stor_action.create_storagepool_thinlv,args.node, args.storagepool, args.tlv)
                     else:
                         stor_action.create_storagepool_thinlv(args.node, args.storagepool, args.tlv)
@@ -678,10 +693,11 @@ class CLI():
 
     #gui端 get DB
     def getdb(self):
-        mes = cli_socketclient.SocketSend()
-        mes.send_result(mes.sql_script)#get sql_scipt
+        db = linstordb.LINSTORDB()
+        handle = SocketSend()
+        handle.send_result(db.data_base_dump)#get sql_scipt
 
-    def judge(self):
+    def stor_judge(self):
         args = self.args
         if args.vtel_sub == 'stor':
             if self.args.stor_sub in ['node','n']:
@@ -698,12 +714,6 @@ class CLI():
             else:
                 self.vtel_stor.print_help()
 
-        elif 'iscsi' in sys.argv:
-            if 'show' in sys.argv:
-                pass
-
-        else:
-            self.vtel.print_help()
 
     """
     ------iscsi-------

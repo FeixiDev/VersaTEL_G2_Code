@@ -1,25 +1,11 @@
 #conding:utf-8
 import re
 
-#for diskgroup
-def judge_name(name):
-    re_dg = re.compile('^[a-zA-Z][a-zA-Z0-9_-]*$')
-    if re_dg.match(name):
-        return name
-
 
 def judge_size(size):
-    re_size = re.compile('^[1-9][0-9.]*([KkMmGgTtPpB](iB|B)?)$')
+    re_size = re.compile('^[1-9][0-9]*([KkMmGgTtPpB](iB|B)?)$')
     if re_size.match(size):
         return size
-
-
-def judge_num(num):
-    re_num = re.compile('^[1-9][0-9]*')
-    if re_num.match(num):
-        return num
-
-
 
 def judge_cmd_result_suc(cmd):
     re_suc = re.compile('SUCCESS')
@@ -74,22 +60,22 @@ def get_war_mes(result):
 
 
 def refining_thinlv(str):
-    list = str.splitlines()
+    list_tb = str.splitlines()
     list_thinlv = []
     re_ = re.compile(r'\s*(\S*)\s*(\S*)\s*\S*\s*(\S*)\s*\S*\s*\S*\s*\S*\s*?')
-    for list_one in list:
+    for list_one in list_tb:
         if 'twi' in list_one:
             thinlv_one = re_.findall(list_one)
-            list_thinlv.append(thinlv_one[0])
+            list_thinlv.append(list(thinlv_one[0]))
     return list_thinlv
 
 def refining_vg(str):
-    list = str.splitlines()
+    list_tb = str.splitlines()
     list_vg = []
     re_ = re.compile(r'\s*(\S*)\s*\S*\s*\S*\s*\S*\s*\S*\s*(\S*)\s*(\S*)\s*?')
-    for list_one in list[1:]:
+    for list_one in list_tb[1:]:
         vg_one = re_.findall(list_one)
-        list_vg.append(vg_one[0])
+        list_vg.append(list(vg_one[0]))
     return list_vg
 
 
