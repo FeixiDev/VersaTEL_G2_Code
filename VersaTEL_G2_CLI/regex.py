@@ -59,7 +59,7 @@ def get_war_mes(result):
         return (re_.search(result).group())
 
 
-def refine_thinlv(str):
+def refining_thinlv(str):
     list_tb = str.splitlines()
     list_thinlv = []
     re_ = re.compile(r'\s*(\S*)\s*(\S*)\s*\S*\s*(\S*)\s*\S*\s*\S*\s*\S*\s*?')
@@ -69,7 +69,7 @@ def refine_thinlv(str):
             list_thinlv.append(list(thinlv_one[0]))
     return list_thinlv
 
-def refine_vg(str):
+def refining_vg(str):
     list_tb = str.splitlines()
     list_vg = []
     re_ = re.compile(r'\s*(\S*)\s*\S*\s*\S*\s*\S*\s*\S*\s*(\S*)\s*(\S*)\s*?')
@@ -78,23 +78,4 @@ def refine_vg(str):
         list_vg.append(list(vg_one[0]))
     return list_vg
 
-def refine_linstor(table_data):
-    reSeparate = re.compile('(.*?\s\|)')
-    list_table= table_data.split('\n')
-    list_data_all = []
 
-    def clear_symbol(list_data):
-        for i in range(len(list_data)):
-            list_data[i] = list_data[i].replace(' ', '')
-            list_data[i] = list_data[i].replace('|', '')
-
-    for i in range(len(list_table)):
-        if list_table[i].startswith('|') and '=' not in list_table[i]:
-            valid_data = reSeparate.findall(list_table[i])
-            clear_symbol(valid_data)
-            list_data_all.append(valid_data)
-    try:
-        list_data_all.pop(0)
-    except IndexError:
-        print('The data cannot be read, please check whether LINSTOR is normal.')
-    return list_data_all
