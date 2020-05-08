@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Create</title>
+
+	
+<link href="{{ url_for('static',filename='bootstrap.min.css') }}"
+	rel="stylesheet" type="text/css" />
+
+<link href="{{ url_for('static',filename='bootstrap-select.min.css') }}"
+	rel="stylesheet" type="text/css" />
+
+<style type="text/css">
+body {
+	padding: 10px;
+}
+</style>
+
+</head>
+
+<body>
+	<div class="container">
+		<div class="row clearfix">
+
+			<!-- ------------------------ -->
+			<div class="col-md-12 ">
+				<div class="page-header">
+					<h1>
+						操作区 <small>Host</small>
+					</h1>
+				</div>
+				<div class="form-group">
+					<label for="inputEmail" class="col-sm-2 control-label">Host_Name</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="Host_Name"
+							placeholder="请输入" style="width: 200px;" value="">
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="inputPassword" class="col-sm-2 control-label">Host_iqn</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="Host_iqn"
+							placeholder="请输入" style="width: 200px;" value="">
+					</div>
+				</div>
+				<div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-default" data-toggle="modal"
+                            name="Host_create" id="Host_create" data-target="#myModal1">Create</button>
+                    </div>
+                </div>
+			</div>
+			<!-- ------------------------ -->
+			<div class="col-md-12 column">
+				<div class="page-header">
+					<h1>
+						操作区 <small>HostGroup</small>
+					</h1>
+				</div>
+				<div class="form-group">
+					<label for="inputEmail" class="col-sm-2 control-label">HostGroup_Name</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="HostGroup_Name"
+							placeholder="请输入" style="width: 200px;" value="">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-2 ">Host</label>
+
+					<div style="width: 340px;" class="col-sm-10 ">
+						<select id='Host' name="Host" multiple class="selectpicker"
+							data-live-search="true">
+						</select>
+					</div>
+					<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+
+					
+					<script
+						src="static/bootstrap-select-1.12.4/dist/js/bootstrap-select.js"></script>
+
+					<script type="text/javascript">
+					$('#Host').selectpicker({width:200});
+				    $(function() {
+                            $.ajax({
+                                url: "/configuration_data",
+                                type: "GET",
+                                dataType: "json",
+                                success: function(data) {
+                                    $('#Host').html(""); 
+                                    var html = "";
+                                    var Host_dict = data.Host
+                                    for(i in Host_dict) {
+                                     	html += '<option value=' + i+ '>' + i + '</option>'
+                                    }
+                                      	$('#Host').append(html);  
+							        	$('#Host').selectpicker('refresh');
+							        	$('#Host').selectpicker('render');
+                                }
+                            });
+                            });
+                             $(window).on('load', function () {
+							    $('#ini_aa').selectpicker({
+							        'selectedText': 'cat'
+							    });
+							});
+					</script>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-offset-2 col-sm-10">
+						<button type="submit" class="btn btn-default" data-toggle="modal"
+							name="HostGroup_create" id="HostGroup_create"
+							data-target="#myModal1">Create</button>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-12 ">
+				<div class="page-header">
+					<h1>
+						操作区 <small>DiskGroup</small>
+					</h1>
+				</div>
+				<div class="form-group">
+					<label for="inputEmail" class="col-sm-2 control-label">DiskGroup_Name</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="DiskGroup_Name"
+							placeholder="请输入" style="width: 200px;" value="">
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 c">Disk</label>
+
+						<div style="width: 340px;" class="col-sm-10 ">
+							<select id='Disk' name="Disk" multiple class="selectpicker"
+								data-live-search="true">
+							</select>
+						</div>
+
+						<script type="text/javascript">
+						$('#Disk').selectpicker({width:200});
+						
+				    $(function() {
+                            $.ajax({
+                                url: "/configuration_data",
+                                type: "GET",
+                                dataType: "json",
+                                success: function(data) {
+                                    //var _data = data.data; //由于后台传过来的json有个data，在此重命名
+                                      $('#Disk').html(""); 
+                                    var html = "";
+                                    var Disk_dict = data.Disk
+                                    for(i in Disk_dict) {
+                                    //alert(i);
+                                     html += '<option value=' + i + '>' + i + '</option>'
+                                    }
+                                      $('#Disk').append(html);  
+                                            // 缺一不可
+							        $('#Disk').selectpicker('refresh');
+							        $('#Disk').selectpicker('render');
+                                }
+                            });
+                            });
+                             $(window).on('load', function () {
+							    $('#Disk').selectpicker({
+							        'selectedText': 'cat'
+							    });
+							});
+         
+					                            
+					</script>
+
+					</div>
+					<div class="form-group">
+						<div class="col-sm-offset-2 col-sm-10">
+							<button type="submit" class="btn btn-default" data-toggle="modal"
+								name="DiskGroup_create" id="DiskGroup_create"
+								data-target="#myModal1">Create</button>
+						</div>
+					</div>
+				</div>
+
+				<!-- ------------------------ -->
+				<div class="col-md-12 column">
+
+					<div class="page-header">
+						<h1>
+							操作区 <small>Map</small>
+						</h1>
+					</div>
+					<div class="form-group">
+						<label for="inputEmail" class="col-sm-2 control-label">Map_Name</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" id="Map_Name"
+								placeholder="请输入" style="width: 200px;" value="">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputPassword" class="col-sm-2 control-label">Host_Group</label>
+
+						<div style="width: 340px;" class="col-sm-10 ">
+							<select id='Host_Group' name="Host_Group" class="selectpicker"
+								data-live-search="true">
+							</select>
+						</div>
+						<script type="text/javascript">
+					$('#Host_Group').selectpicker({width:200});
+						
+						
+					 $(function() {
+                            $.ajax({
+                                url: "/configuration_data",
+                                type: "get",
+                                dataType: "json",
+                                success: function(data) {
+                                    //var _data = data.data; //由于后台传过来的json有个data，在此重命名
+                                     $('#Host_Group').html("");
+                                    var html = "";
+                                    var Host_Group_dict = data.HostGroup
+                                    for(i in Host_Group_dict) {
+                                       html += '<option value=' + i + '>' + i + '</option>'
+                                    }
+                                      $('#Host_Group').append(html);
+                                          // 缺一不可
+							        $('#Host_Group').selectpicker('refresh');
+							        $('#Host_Group').selectpicker('render');
+                                }
+                            });
+                            });
+                             $(window).on('load', function () {
+    $('#Host_Group').selectpicker({
+        'selectedText': 'cat'
+    });
+});
+					</script>
+					</div>
+					<div class="form-group">
+						<label for="inputPassword" class="col-sm-2 control-label">Disk_Group</label>
+
+						<div style="width: 340px;" class="col-sm-10 ">
+							<select id='Disk_Group' name="Disk_Group" class="selectpicker"
+								data-live-search="true">
+							</select>
+						</div>
+						<script type="text/javascript">
+						$('#Disk_Group').selectpicker({width:200});
+						
+					 $(function() {
+                            $.ajax({
+                                url: "/configuration_data",
+                                type: "get",
+                                dataType: "json",
+                                success: function(data) {
+                                    $('#Disk_Group').html("");
+                                    var html = "";
+                                    var Disk_Group_dict = data.DiskGroup
+                                    for(i in Disk_Group_dict) {
+                                       $('#Disk_Group').append('<option value=' + i + '>' + i + '</option>')
+                                    }
+                                            // 缺一不可
+							        $('#Disk_Group').selectpicker('refresh');
+							        $('#Disk_Group').selectpicker('render');
+                                }
+                            });
+                            });
+                             $(window).on('load', function () {
+							    $('#Disk_Group').selectpicker({
+							        'selectedText': 'cat'
+							    });
+							});
+         
+					   
+					</script>
+					</div>
+
+					<div class="form-group">
+						<div class="col-sm-offset-2 col-sm-10">
+							<button type="submit" class="btn btn-default" data-toggle="modal"
+								name="Map_create" id="Map_create" data-target="#myModal1">Create</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- 模态框 -->
+			<div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+				aria-labelledby="myModalLabel" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal"
+								aria-hidden="true">×</button>
+							<h4 class="modal-title" id="myModalLabel">模态框（Modal）标题</h4>
+						</div>
+						<div class="modal-body">
+							<div class="progress progress-striped active">
+								<div id="prog" class="progress-bar" role="progressbar"
+									aria-valuenow="" aria-valuemin="0" aria-valuemax="100"
+									style="width: 0%;">
+									<span id="monthTotal">${itsmStatisticMonth.sumCount}</span>
+								</div>
+							</div>
+							<input type="text" id="double" name="double" value="">
+						</div>
+						<div class="modal-footer">
+							<button type="button" id="newcreate" class="btn btn-default"
+								data-dismiss="modal">再次创建</button>
+							<input type="button" class="btn btn-default" value="查看表格"
+								id="see">
+						</div>
+
+					</div>
+					<!-- /.modal-content -->
+				</div>
+				<!-- /.modal-dialog -->
+			</div>
+			<!-- /.modal -->
+</div>
+
+</div>
+		
+		<script src="https://www.layuicdn.com/layui/layui.js"></script>
+
+		<script type="text/javascript">
+	$("#Host_create").click(function () {
+     var Host_Name = $("#Host_Name").val()
+     var Host_iqn = $("#Host_iqn").val()
+     $.ajax({
+         url:"/send_message",
+         type:"GET",
+         data:{
+             Host_Name:Host_Name,
+             Host_iqn:Host_iqn
+         },
+         success:function (data) {
+
+         alert(data);
+         },
+         error:function () {
+         }
+     })
+     $("#Host_Name").val("");
+     $("#Host_iqn").val("");
+ });
+ ///////////////////////////////////////////////
+ 	$("#HostGroup_create").click(function () {
+     var HostGroup_Name = $("#HostGroup_Name").val()
+     var Host = $("#Host").val().toString()
+     $.ajax({
+         url:"/send_message",
+         type:"GET",
+         data:{
+             HostGroup_Name:HostGroup_Name,
+             Host:Host
+         },
+         success:function (data) {
+         alert(data);
+          
+         //$("#double").val(data);
+          //赋值
+         },
+         error:function () {
+         }
+     })
+    $("#HostGroup_Name").val("");
+ });
+  ///////////////////////////////////////////////
+ $("#DiskGroup_create").click(function () {
+     var DiskGroup_Name = $("#DiskGroup_Name").val()
+     var Disk = $("#Disk").val().toString()
+     $.ajax({
+         url:"/send_message",
+         type:"GET",
+         data:{
+             DiskGroup_Name:DiskGroup_Name,
+             Disk:Disk
+         },
+         success:function (data) {
+         	alert(data);
+         },
+         error:function () {
+         }
+     })
+       $("#DiskGroup_Name").val("");
+ });
+ /////////////////////////////
+ $("#Map_create").click(function () {
+     var Map_Name = $("#Map_Name").val()
+     var Disk_Group = $("#Disk_Group").val()
+     var Host_Group = $("#Host_Group").val()
+     $.ajax({
+         url:"/send_message",
+         type:"GET",
+         data:{
+             Map_Name:Map_Name,
+             Disk_Group:Disk_Group,
+             Host_Group:Host_Group
+         },
+         success:function (data) {
+            alert(data);
+         },
+         error:function () {
+         }
+     })
+      $("#Map_Name").val("");
+ });
+	</script>
+		<script type="text/javascript">
+$("#newcreate").click(function(){
+ 	$("input[type=text]").val('');
+});
+</script>
+		
+</body>
+</html>
