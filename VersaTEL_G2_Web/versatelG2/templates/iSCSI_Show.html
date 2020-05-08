@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<title>iSCSI_Show</title>
+<link href="{{ url_for('static',filename='bootstrap.min.css') }}"
+	rel="stylesheet" type="text/css" />
+
+<link href="{{ url_for('static',filename='bootstrap.css') }}"
+	rel="stylesheet" type="text/css" />
+
+<script src="{{ url_for('static',filename='JQuery.js') }}"></script>
+<script src="{{ url_for('static',filename='bootstrap.js') }}"></script>
+
+<link rel="stylesheet"
+	href="https://www.layuicdn.com/layui-v2.5.0/css/layui.css">
+<style>
+body {
+	margin: 10px;
+}
+.demo-carousel {
+	height: 200px;
+	line-height: 200px;
+	text-align: center;
+}
+</style>
+</head>
+<body>
+
+	<div class="page-header">
+		<h1>
+			展示区 <small>表格</small>
+		</h1>
+	</div>
+
+	<ul class="nav nav-tabs" role="tablist">
+		<li role="presentation" class="active"><a href="#Disk" role="tab"
+			data-toggle="tab">Disk</a></li>
+		<li role="presentation"><a href="#DiskGroup" role="tab"
+			data-toggle="tab">DiskGroup</a></li>
+		<li role="presentation"><a href="#Host" role="tab"
+			data-toggle="tab">Host</a></li>
+		<li role="presentation"><a href="#HostGroup" role="tab"
+			data-toggle="tab">HostGroup</a></li>
+		<li role="presentation"><a href="#Map" role="tab"
+			data-toggle="tab">Map</a></li>
+	</ul>
+	<!-- 面板区 -->
+	<div class="tab-content">
+		<div role="tabpanel" class="tab-pane active" id="Disk">
+			<table class="table table-striped table-bordered table-hover">
+				<thead>
+					<tr>
+						<th>Alias</th>
+						<th>Path</th>
+					</tr>
+				</thead>
+				<tbody id="Disk_id">
+				</tbody>
+			</table>
+		</div>
+		<!-- ------------------------ -->
+		<div role="tabpanel" class="tab-pane" id="DiskGroup">
+			<table class="table table-striped table-bordered table-hover">
+				<thead>
+					<tr>
+						<th>Alias</th>
+						<th>DiskList</th>
+						<th>详情</th>
+					</tr>
+				</thead>
+				<tbody id="DiskGroup_id">
+				</tbody>
+			</table>
+		</div>
+		<!-- ------------------------ -->
+		<div role="tabpanel" class="tab-pane" id="Host">
+			<table class="table table-striped table-bordered table-hover">
+				<thead>
+					<tr>
+						<th>Alias</th>
+						<th>iqn</th>
+					</tr>
+				</thead>
+				<tbody id="Host_id">
+				</tbody>
+			</table>
+		</div>
+		<!-- ------------------------ -->
+		<div role="tabpanel" class="tab-pane" id="HostGroup">
+			<table class="table table-striped table-bordered table-hover">
+				<thead>
+					<tr>
+						<th>Alias</th>
+						<th>HostList</th>
+						<th>详情</th>
+					</tr>
+				</thead>
+				<tbody id="HostGroup_id">
+				</tbody>
+			</table>
+		</div>
+		<!-- ------------------------ -->
+		<div role="tabpanel" class="tab-pane" id="Map">
+			<table class="table table-striped table-bordered table-hover">
+				<thead>
+					<tr>
+						<th>Alias</th>
+						<th>GroupList</th>
+						<th>详情</th>
+					</tr>
+				</thead>
+				<tbody id="Map_id">
+				</tbody>
+			</table>
+		</div>
+		<!-- ------------------------ -->
+		<!-- 模态框（Modal-Disk) -->
+		<div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<table class="table table-striped table-bordered table-hover">
+						<thead>
+							<tr>
+								<th>Alias</th>
+								<th>Path</th>
+							</tr>
+						</thead>
+						<tbody id="Disk_id_son">
+						</tbody>
+					</table>
+				</div>
+				<!-- /.modal-content -->
+			</div>
+			<!-- /.modal -->
+		</div>
+		<!-- 模态框（Modal）-Hsot -->
+		<div class="modal fade" id="myModal_one" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<table class="table table-striped table-bordered table-hover">
+						<thead>
+							<tr>
+								<th>Alias</th>
+								<th>iqn</th>
+							</tr>
+						</thead>
+						<tbody id="Host_id_son">
+						</tbody>
+					</table>
+				</div>
+				<!-- /.modal-content -->
+			</div>
+			<!-- /.modal -->
+		</div>
+		<!-- 模态框（Modal）-Map -->
+		<div class="modal fade" id="myModal_two" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<table class="table table-striped table-bordered table-hover">
+						<thead>
+							<tr>
+								<th>GroupName</th>
+								<th>GroupList</th>
+							</tr>
+						</thead>
+						<tbody id="Map_id_son">
+						</tbody>
+					</table>
+					<table class="table table-striped table-bordered table-hover">
+						<thead>
+							<tr>
+								<th>Alias</th>
+								<th>值</th>
+							</tr>
+						</thead>
+						<tbody id="Group_id_son">
+						</tbody>
+					</table>
+
+				</div>
+				<!-- /.modal-content -->
+			</div>
+			<!-- /.modal -->
+		</div>
+
+	</div>
+
+	<script type="text/javascript">
+    //获取发布模块类型
+    function getModuleInfo() {
+      $.ajax({
+        type: "GET",
+        dataType: "JSON",
+        url: "/configuration_data",
+        success: function(data) {
+        //Disk
+        for(i in data.Disk){
+       			 tr = '<td >'+i+'</td>'+
+            			'<td >'+data.Disk[i]+'</td>'
+               	$("#Disk_id").append('<tr class="parent"  id="row_01">'+tr+'</tr>')
+        }
+        //DiskGroup
+         for(i in data.DiskGroup){
+       			tr = '<td >'+i+'</td>'+
+            		'<td >'+data.DiskGroup[i]+'</td>'+
+            		'<td >'+'<button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#myModal" value="'+data.DiskGroup[i]+'" >查看</button>'+'</td>'
+               		$("#DiskGroup_id").append('<tr>'+tr+'</tr>')
+        }
+         $(".btn").click(function(){ 
+ 					var trace = $(this).val()
+ 					var arr = trace.split(',')
+            		$("#Disk_id_son").empty();
+       				for(disk_num in arr){
+       				  		tr1 = '<td >'+arr[disk_num]+'</td>'+
+            						'<td >'+data.Disk[arr[disk_num]]+'</td>'
+               						$("#Disk_id_son").append('<tr >'+tr1+'</tr>')
+       						}
+ 						});
+        //Host
+        for(i in data.Host){
+       			 tr = '<td >'+i+'</td>'+
+            		'<td >'+data.Host[i]+'</td>'
+               		$("#Host_id").append('<tr class="parent"  id="row_03">'+tr+'</tr>')
+        }
+
+        //HsotGroup
+        for(i in data.HostGroup){
+       			 tr = '<td >'+i+'</td>'+
+            		'<td >'+data.HostGroup[i]+'</td>'+
+            		'<td >'+'<button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#myModal_one" value="'+data.HostGroup[i]+'" >查看</button>'+'</td>'
+               		$("#HostGroup_id").append('<tr class="parent"  id="row_04">'+tr+'</tr>')
+        } $(".btn").click(function(){ 
+ 					var trace = $(this).val()
+					var arr = trace.split(',')
+            		$("#Host_id_son").empty();
+       				for(disk_num in arr){
+       				  		tr1 = '<td >'+arr[disk_num]+'</td>'+
+            					'<td >'+data.Host[arr[disk_num]]+'</td>'
+               				$("#Host_id_son").append('<tr >'+tr1+'</tr>')
+       				}
+ 				});
+        
+        for(i in data.Map){
+       			 tr = '<td >'+i+'</td>'+
+            		'<td >'+data.Map[i]+'</td>'+
+            		'<td >'+'<button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#myModal_two" value="'+data.Map[i]+'" >查看</button>'+'</td>'
+               	$("#Map_id").append('<tr class="parent"  id="row_05">'+tr+'</tr>')
+             }$(".btn").click(function(){ 
+ 					var trace = $(this).val()
+					var arr = trace.split(',')
+            		$("#Map_id_son").empty();
+            		$("#Group_id_son").empty();
+       				for(disk_num in arr){
+       				if(arr[disk_num] in data.DiskGroup){
+       				tr1 = '<td >'+arr[disk_num]+'</td>'+
+            					'<td >'+data.DiskGroup[arr[disk_num]]+'</td>'
+            					$("#Map_id_son").append('<tr >'+tr1+'</tr>')
+            		var disk = data.DiskGroup[arr[disk_num]]
+            		for(disk_list in disk){
+            		tr2 = '<td >'+disk[disk_list]+'</td>'+
+            					'<td >'+data.Disk[disk[disk_list]]+'</td>'
+            					$("#Group_id_son").append('<tr >'+tr2+'</tr>')
+            			}
+       				}else if(arr[disk_num] in data.HostGroup){
+       					tr1 = '<td >'+arr[disk_num]+'</td>'+
+            					'<td >'+data.HostGroup[arr[disk_num]]+'</td>'
+       				$("#Map_id_son").append('<tr >'+tr1+'</tr>')
+       				var host = data.HostGroup[arr[disk_num]]	
+            		for( host_list in host){
+            		tr2 = '<td >'+host[host_list]+'</td>'+
+            					'<td >'+data.Host[host[host_list]]+'</td>'
+            					$("#Group_id_son").append('<tr >'+tr2+'</tr>')
+            		}
+       				}
+       				}
+ 				});
+        },
+        error: function(data) {
+          alert("加载失败");
+        }
+      });
+    }
+    $(function() {
+      getModuleInfo();
+    });
+  </script>
+
+
+
+</body>
+</html>

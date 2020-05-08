@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>VersaTEL G2</title>
+<link href="https://www.layuicdn.com/layui/css/layui.css"
+	rel="stylesheet" type="text/css" />
+<script src="{{ url_for('static',filename='JQuery.js') }}"></script>
+<script src="https://www.layuicdn.com/layui/layui.js"></script>
+<style>
+.layui-side-scroll {
+	width: 100%;
+}
+
+.layui-nav-tree {
+	width: 100%;ss
+}
+
+.layui-layout-admin .layui-header {
+	z-index: 999999;
+}
+
+.layui-layout-admin .layui-footer {
+	z-index: 9999;
+}
+
+.layui-layout-admin .layui-side {
+	width: 15%;
+}
+
+.layui-layout-admin .layui-footer {
+	left: 15%;
+}
+</style>
+</head>
+<body class="layui-layout-body">
+	<div class="layui-layout layui-layout-admin">
+		<div class="layui-header">
+			<div class="layui-logo">G2</div>
+			<!-- 头部区域（可配合layui已有的水平导航） -->
+			<ul class="layui-nav layui-layout-left">
+				<li class="layui-nav-item"><a href="">待定页</a></li>
+				<li class="layui-nav-item"><a href="">待定页</a></li>
+				<li class="layui-nav-item"><a href="">待定页</a></li>
+				<li class="layui-nav-item"><a href="javascript:;">其他</a>
+					<dl class="layui-nav-child">
+						<dd>
+							<a href="">邮件管理</a>
+						</dd>
+						<dd>
+							<a href="">消息管理</a>
+						</dd>
+						<dd>
+							<a href="">授权管理</a>
+						</dd>
+					</dl></li>
+			</ul>
+
+		</div>
+		<div class="gy_wrap1">
+			<div class="layui-side layui-bg-black">
+				<div class="layui-side-scroll">
+					<div title="菜单缩放" class="kit-side-fold">
+						<i class="fa fa-navicon" aria-hidden="true"></i>
+					</div>
+					<!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+					<ul class="layui-nav layui-nav-tree" lay-filter="test">
+						<!-- 图片区，后续自行添加 -->
+						<!-- <li><a href="javascript:;"><img class="logo"
+                            src="images/logo.png" alt=""></a></li> -->
+						<li class="layui-nav-item layui-nav-itemed"><a class="title"
+							onclick="selectItem(this)" id="LINSTOR_Create"><span>LINSTOR_Create</span></a></li>
+
+						<li class="layui-nav-item layui-nav-itemed"><a class="title"
+							onclick="selectItem(this)" id="iSCSI_Create"><span>iSCSI_Create</span></a></li>
+
+
+						<li class="layui-nav-item layui-nav-itemed"><a class="title"
+							onclick="selectItem(this)" id="Show"><span>Show</span></a></li>
+
+						<li class="layui-nav-item"><a class="title"
+							onclick="selectItem(this)" id="Node"><span>Node</span></a></li>
+
+						<li class="layui-nav-item"><a class="title"
+							onclick="selectItem(this)" id="Resource"><span>Resource</span></a></li>
+
+						<li class="layui-nav-item"><a class="title"
+							onclick="selectItem(this)" id="StoragePool"><span>StoragePool</span></a></li>
+
+						<li class="layui-nav-item"><a class="title"
+							onclick="selectItem(this)" id="iSCSI_Show"><span>iSCSI_Show</span></a></li>
+
+
+					</ul>
+				</div>
+			</div>
+			<div class="layui-body"></div>
+		</div>
+		<div class="fourteen wide stretched column" id="mainpage">
+			<iframe
+				style="border: 0; width: 85%; min-height: 80%; margin-left: 15%; max-width: 1700px; position: absolute; z-index: 9999;"
+				src="/show" frameborder="0" scrolling="auto" id="iframecontend"></iframe>
+			<!-- src里面可以放主页网址 -->
+		</div>
+		<div class="layui-footer">
+			<!-- 底部固定区域 -->
+			© feixitek.com
+		</div>
+	</div>
+	<script type="text/javascript">
+    function selectItem(obj) {
+        $('.active.item').removeClass("active");
+        obj.className += " active";
+        if(obj.id=='LINSTOR_Create'){
+            $('#mainpage iframe').attr('src',"/LINSTOR_create");
+            $('#mainpage iframe').css({ "margin-left": "15%","max-width":"1700px"}); 
+        }else if(obj.id=='iSCSI_Create'){
+            $('#mainpage iframe').attr('src',"/iSCSI_create");
+            $('#mainpage iframe').css({ "margin-left": "15%","max-width":"1700px"}); 
+        }else if(obj.id=='Show'){
+            $('#mainpage iframe').attr('src',"/show");
+            $('#mainpage iframe').css({ "margin-left": "15%","max-width":"1700px"}); 
+        }else if(obj.id=='Node'){
+                $('#mainpage iframe').attr('src',"/Node");
+                $('#mainpage iframe').css({ "margin-left": "15%","max-width":"1700px"});
+        }else if(obj.id=='Resource'){
+                $('#mainpage iframe').attr('src',"/Resource");
+                $('#mainpage iframe').css({ "margin-left": "15%","max-width":"1700px"});
+        }else if(obj.id=='StoragePool'){
+                $('#mainpage iframe').attr('src',"/StoragePool");
+                $('#mainpage iframe').css({ "margin-left": "15%","max-width":"1700px"});
+        }else if(obj.id=='iSCSI_Show'){
+                $('#mainpage iframe').attr('src',"/iSCSI_Show");
+                $('#mainpage iframe').css({ "margin-left": "15%","max-width":"1700px"});
+        }
+        }
+</script>
+	<script>
+    //JavaScript代码区域
+    layui.use('element', function(){
+        var element = layui.element;
+    });
+    var isShow = true;  //定义一个标志位
+    $('.kit-side-fold').click(function(){
+        //选择出所有的span，并判断是不是hidden
+        $('.layui-nav-item span').each(function(){
+            if($(this).is(':hidden')){
+                $(this).show();
+            }else{
+                $(this).hide();
+            }
+        });
+        //判断isshow的状态
+        if(isShow){
+            $('.layui-side.layui-bg-black').width(60); //设置宽度
+            $('.kit-side-fold i').css('margin-right', '70%');  //修改图标的位置
+            //将footer和body的宽度修改
+            $('.layui-body').css('left', 60+'px');
+            $('.layui-footer').css('left', 60+'px');
+            //将二级导航栏隐藏
+            $('dd span').each(function(){
+                $(this).hide();
+            });
+            //修改标志位
+            isShow =false;
+        }else{
+            $('.layui-side.layui-bg-black').width(200);
+            $('.kit-side-fold i').css('margin-right', '10%');
+            $('.layui-body').css('left', 200+'px');
+            $('.layui-footer').css('left', 200+'px');
+            $('dd span').each(function(){
+                $(this).show();
+            });
+            isShow =true;
+        }
+    });
+
+</script>
+<script type="text/javascript">
+	$("#LINSTOR_Create").click(function(){
+		$.ajax({
+			url:"/socket",
+			type:"get",
+			success:function(){
+			
+			}
+		})
+	});
+
+
+</script>>
+
+</body>
+</html>
