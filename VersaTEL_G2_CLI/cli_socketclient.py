@@ -1,4 +1,5 @@
 import pickle
+import linstordb
 import socket
 
 def get_host_ip():
@@ -19,6 +20,11 @@ class SocketSend():
     def __init__(self):
         self.client = socket.socket()
         self.client.connect(ip_port)
+
+
+    def print_sql(self,func,*args):
+        func = func()
+        print(func.encode())
 
     def send_result(self,func,*args):
         client = self.client

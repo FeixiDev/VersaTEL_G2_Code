@@ -1,16 +1,11 @@
 #coding:utf-8
+import getlinstor as gi
 import colorama as ca
 import prettytable as pt
 from functools import wraps
 import sqlite3,socket,subprocess,datetime,threading
 import multiprocessing as mp
 import regex
-from excute_sys_command import (linstor,lvm)
-
-def nowtime():
-    time = datetime.datetime.now()
-    return time
-
 
 
 class LINSTORDB():
@@ -143,8 +138,8 @@ class LINSTORDB():
     def rebuild_tb(self):
         self.drop_tb()
         self.create_tb()
-        self.exc_get_vg()
-        self.exc_get_thinlv()
+        self.get_vg()
+        self.get_thinlv()
         self.get_output()
         # self.create_tb()
         # self.run_insert()
@@ -152,39 +147,73 @@ class LINSTORDB():
 
     def get_output(self):
         #threading
-        threads = []
-        thread_ins_node = threading.Thread(target=self.thread_get_node())
-        threads.append(thread_ins_node)
-        thread_ins_res = threading.Thread(target=self.thread_get_res())
-        threads.append(thread_ins_res)
-        thread_ins_sp = threading.Thread(target=self.thread_get_sp())
-        threads.append(thread_ins_sp)
+        thread_ins_node = threading.Thread(target=self.get_node())
+        thread_ins_res = threading.Thread(target=self.get_res())
+        thread_ins_sp = threading.Thread(target=self.get_sp())
+
+        threads = [thread_ins_node,thread_ins_res,thread_ins_sp]
 
         for i in range(len(threads)):
             threads[i].start()
         for i in range(len(threads)):
             threads[i].join()
 
-    def exc_get_vg(self):
-        vg = regex.refine_vg(lvm.get_vg())
-        self.insert_data(self.replace_vgtb_sql,vg)
+        # thread_ins_node.start()
+        # thread_ins_res.start()
+        # thread_ins_sp.start()
+        #
+        # thread_ins_node.join()
+        # thread_ins_res.join()
+        # thread_ins_sp.join()
 
 
-    def exc_get_thinlv(self):
-        thinlv = regex.refine_thinlv(lvm.get_thinlv())
-        self.insert_data(self.replace_thinlvtb_sql, thinlv)
+        #multiprocessing
+        # process_ins_node = mp.Process(target=self.get_node())
+        # process_ins_res = mp.Process(target=self.get_res())
+        # process_ins_sp = mp.Process(target=self.get_sp())
+        #
+        # process_ins_node.start()
+        # process_ins_res.start()
+        # process_ins_sp.start()
+        #
+        # process_ins_node.join()
+        # process_ins_res.join()
+        # process_ins_sp.join()
 
-    def thread_get_node(self):
-        node = regex.refine_linstor(linstor.get_node())
-        self.insert_data(self.replace_ntb_sql,node)
+    def get_vg(self):
+        result_vg = subprocess.Popen('vgs',shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        output_vg = result_vg.stdout.read().decode()
+        vg = regex.refining_vg(output_vg)
+        self.rep_vgtb(vg)
 
-    def thread_get_res(self):
-        res = regex.refine_linstor(linstor.get_res())
-        self.insert_data(self.replace_rtb_sql,res)
 
-    def thread_get_sp(self):
-        sp = regex.refine_linstor(linstor.get_sp())
-        self.insert_data(self.replace_stb_sql,sp)
+    def get_thinlv(self):
+        result_thinlv = subprocess.Popen('lvs',shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        output_thinlv = result_thinlv.stdout.read().decode()
+        thinlv = regex.refining_thinlv(output_thinlv)
+        self.rep_thinlvtb(thinlv)
+
+    def get_node(self):
+        result_node = subprocess.Popen('linstor --no-color --no-utf8 n l', shell=True, stdout=subprocess.PIPE,
+                                       stderr=subprocess.STDOUT)
+        output_node = result_node.stdout.read().decode('utf-8')
+        node = gi.GetLinstor(output_node)
+        self.rep_nodetb(node.get_data())
+
+    def get_res(self):
+        result_res = subprocess.Popen('linstor --no-color --no-utf8 r lv', shell=True, stdout=subprocess.PIPE,
+                                      stderr=subprocess.STDOUT)
+        output_res = result_res.stdout.read().decode('utf-8')
+        res = gi.GetLinstor(output_res)
+        self.rep_resourcetb(res.get_data())
+
+    def get_sp(self):
+        result_sp = subprocess.Popen('linstor --no-color --no-utf8 sp l', shell=True, stdout=subprocess.PIPE,
+                                     stderr=subprocess.STDOUT)
+        output_sp = result_sp.stdout.read().decode('utf-8')
+        sp = gi.GetLinstor(output_sp)
+        #self.insert_data(self.replace_stb_sql, sp.get_data())
+        self.rep_storagepooltb(sp.get_data())
 
 
     #创建表
@@ -198,12 +227,16 @@ class LINSTORDB():
 
     #删除表，现不使用
     def drop_tb(self):
-        tables_sql = "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
-        self.cur.execute(tables_sql)
-        tables = self.cur.fetchall()
-        for table in tables:
-            drp_sql = "drop table if exists %s"%table
-            self.cur.execute(drp_sql)
+        drp_storagepooltb_sql = "drop table if exists storagepooltb"#sql语句
+        drp_resourcetb_sql = "drop table if exists resourcetb"
+        drp_nodetb_sql = "drop table if exists nodetb"
+        drp_vgtb_sql = "drop table if exists vgtb"
+        drp_thinlvtb_sql = "drop table if exists thinlvtb"
+        self.cur.execute(drp_storagepooltb_sql)#检查是否存在表，如存在，则删除
+        self.cur.execute(drp_resourcetb_sql)
+        self.cur.execute(drp_nodetb_sql)
+        self.cur.execute(drp_vgtb_sql)
+        self.cur.execute(drp_thinlvtb_sql)
         self.con.commit()
 
 
@@ -212,6 +245,37 @@ class LINSTORDB():
             list_data[i].insert(0,i+1)
             self.cur.execute(sql,list_data[i])
 
+
+    def rep_storagepooltb(self,list_data):
+        for i in range(len(list_data)):
+            list_data[i].insert(0,i+1)
+            self.cur.execute(self.replace_stb_sql, list_data[i])
+
+    def rep_resourcetb(self,list_data):
+        for i in range(len(list_data)):
+            list_data[i].insert(0,i+1)
+            self.cur.execute(self.replace_rtb_sql, list_data[i])
+
+    def rep_nodetb(self,list_data):
+        for i in range(len(list_data)):
+            list_data[i].insert(0,i+1)
+            self.cur.execute(self.replace_ntb_sql, list_data[i])
+
+    def rep_vgtb(self,list_data):
+        for i in range(len(list_data)):
+            list_data[i].insert(0,i+1)
+            self.cur.execute(self.replace_vgtb_sql,list_data[i])
+
+    def rep_thinlvtb(self, list_data):
+        for i in range(len(list_data)):
+            list_data[i].insert(0,i+1)
+            self.cur.execute(self.replace_thinlvtb_sql, list_data[i])
+
+    # def run_insert(self):
+    #     # self.rep_storagepooltb()
+    #     # self.rep_resourcetb()
+    #     # self.rep_nodetb()
+    #     self.con.commit()
 
     def data_base_dump(self):
         cur = self.cur
@@ -354,9 +418,7 @@ class DataProcess():
     def process_data_node_specific(self,node):
         date_list = []
         for n in self._select_resourcetb(node):
-            res_name, stp_name, size, device_name, used, status = n
-            list_one = [res_name, stp_name, size, device_name, used, status]
-            date_list.append(list_one)
+            date_list.append(list(n))
         return date_list
 
     def process_data_resource_all(self):
@@ -364,9 +426,11 @@ class DataProcess():
         list_one = []
         for i in self._get_resource():
             if i[1]: #过滤size为空的resource
-                resource, size, device_name, used = i
+                # resource, size, device_name, used = i
                 mirror_way = self._get_mirro_way(str(i[0]))[0]
-                list_one = [resource,mirror_way,size,device_name,used]
+                list_one = list(i)
+                list_one.insert(1,mirror_way)
+                # list_one = [resource,mirror_way,size,device_name,used]
                 date_list.append(list_one)
         self.cur.close()
         return date_list
