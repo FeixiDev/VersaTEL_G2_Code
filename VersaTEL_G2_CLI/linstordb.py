@@ -630,5 +630,3 @@ class OutputData(DataProcess):
             node_name = ' and '.join(node_name)
             print('The storagepool name for %s nodes is %s,they are %s.' % (node_num, sp, node_name))
             self.sp_one(sp)
-
-
