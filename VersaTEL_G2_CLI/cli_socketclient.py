@@ -1,6 +1,8 @@
 import pickle
 import socket
 
+#test
+
 def get_host_ip():
     try:
         obj_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
