@@ -1,13 +1,19 @@
 #coding:utf-8
 import socketserver,socket,subprocess,datetime
 
-def nowTimes():
-    now_time = datetime.datetime.now()
-    return now_time
+def get_host_ip():
+    try:
+        obj_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        obj_socket.connect(('8.8.8.8', 80))
+        ip = obj_socket.getsockname()[0]
+    except Exception:
+        return '127.0.0.0'
+    finally:
+        obj_socket.close()
+    return ip
 
 host_port = 12144
-# host_ip = "192.168.36.61"
-host_ip = "10.203.1.89"
+host_ip = get_host_ip()
 byteData = b'null'
 
 class MyTCPHandler(socketserver.BaseRequestHandler):
@@ -33,12 +39,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 sql_script = self.request.recv(8192)
                 byteData = sql_script
                 self.request.send(b'over')
-
-                # #接收记录时间的字典
-                # cli_reve_time = self.request.recv(8192).decode()
-                # for i,j in eval(cli_reve_time).items():
-                #     print(i,j)
-                # self.request.send(b'ok')
             else:
                 pass
 
