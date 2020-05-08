@@ -413,5 +413,3 @@ class stor():
             return True
         else:
             return False
-
-

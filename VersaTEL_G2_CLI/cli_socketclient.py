@@ -20,7 +20,6 @@ class SocketSend():
         self.client = socket.socket()
         self.client.connect(ip_port)
 
-
     def send_result(self,func,*args):
         client = self.client
         func_result = func(*args)
@@ -33,8 +32,3 @@ class SocketSend():
         client.recv(8192)
         client.send(b'exit')
         client.close()
-
-
-
-
-
