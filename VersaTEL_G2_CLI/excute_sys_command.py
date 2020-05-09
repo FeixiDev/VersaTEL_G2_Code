@@ -5,12 +5,6 @@ import time
 import regex
 from collections import OrderedDict
 
-"""
-@author: Zane
-@note: VersaTEL-iSCSI获取crm信息
-@time: 2020/03/11
-@uptime: 2020/04/07
-"""
 
 
 class crm():
@@ -129,6 +123,7 @@ class crm():
                 else:
                     return True
 
+
 class lvm():
     @staticmethod
     def get_vg():
@@ -169,7 +164,6 @@ class linstor():
     def delete_vd(res):
         cmd = 'linstor vd d %s' % res
         subprocess.check_output(cmd, shell=True)
-
 
 
 #子命令stor调用的方法
@@ -414,4 +408,83 @@ class stor():
         else:
             return False
 
+
+class iscsi_map():
+
+    # 获取并更新crm信息
+    def crm_up(self, js):
+        cd = crm()
+        crm_config_statu = cd.get_data_crm()
+        if 'ERROR' in crm_config_statu:
+            print("Could not perform requested operations, are you root?")
+            return False
+        else:
+            redata = cd.re_data(crm_config_statu)
+            js.up_crmconfig(redata)
+            return redata
+
+    # 获取创建map所需的数据
+    def map_data(self, js, crmdata, hg, dg):
+        mapdata = {}
+        hostiqn = []
+        for h in js.get_data('HostGroup').get(hg):
+            iqn = js.get_data('Host').get(h)
+            hostiqn.append(iqn)
+        mapdata.update({'host_iqn': hostiqn})
+        disk = js.get_data('DiskGroup').get(dg)
+        cd = crm()
+        data = cd.get_data_linstor()
+        linstorlv = regex.refine_linstor(data)
+        print("get linstor r lv data")
+        diskd = {}
+        for d in linstorlv:
+            for i in disk:
+                if i in d:
+                    diskd.update({d[1]: [d[4], d[5]]})
+        mapdata.update({'disk': diskd})
+        mapdata.update({'target': crmdata[2]})
+        return mapdata
+
+    # 获取删除map所需的数据
+    def map_data_d(self, js, mapname):
+        dg = js.get_data('Map').get(mapname)[1]
+        disk = js.get_data('DiskGroup').get(dg)
+        return disk
+
+    # 调用crm创建map
+    def map_crm_c(self, mapdata):
+        cd = crm()
+        for i in mapdata['target']:
+            target = i[0]
+            targetiqn = i[1]
+        for disk in mapdata['disk']:
+            res = [disk, mapdata['disk'].get(disk)[0], mapdata['disk'].get(disk)[1]]
+            if cd.createres(res, mapdata['host_iqn'], targetiqn):
+                c = cd.createco(res[0], target)
+                o = cd.createor(res[0], target)
+                s = cd.resstart(res[0])
+                if c and o and s:
+                    print('create colocation and order success:', disk)
+                else:
+                    print("create colocation and order fail")
+                    return False
+            else:
+                print('create resource Fail!')
+                return False
+        return True
+
+    # 调用crm删除map
+    def map_crm_d(self, resname):
+        cd = crm()
+        crm_config_statu = cd.get_data_crm()
+        if 'ERROR' in crm_config_statu:
+            print("Could not perform requested operations, are you root?")
+            return False
+        else:
+            for disk in resname:
+                if cd.delres(disk):
+                    print("delete ", disk)
+                else:
+                    return False
+            return True
 
