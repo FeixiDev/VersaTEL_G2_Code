@@ -715,9 +715,7 @@ class CLI():
                 self.vtel_stor.print_help()
 
 
-  """
-    ------iscsi-------
-    """
+
     # 命令判断
     def iscsi_judge(self):
         js = JSON_OPERATION()
